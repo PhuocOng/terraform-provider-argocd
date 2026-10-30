@@ -259,7 +259,7 @@ func projectSpecSchemaBlocks() map[string]schema.Block {
 						Optional:    true,
 					},
 					"policies": schema.ListAttribute{
-						Description: "List of casbin formatted strings that define access policies for the role in the project. For more information, see the [ArgoCD RBAC reference](https://argoproj.github.io/argo-cd/operator-manual/rbac/#rbac-permission-structure).",
+						Description: "List of casbin formatted strings that define access policies for the role in the project. For more information, see the [ArgoCD RBAC reference](https://argo-cd.readthedocs.io/en/stable/operator-manual/rbac/#rbac-model-structure).",
 						Required:    true,
 						ElementType: types.StringType,
 					},
@@ -429,9 +429,10 @@ func newProjectSpec(spec *v1alpha1.AppProjectSpec) projectSpecModel {
 
 	// Convert signature keys
 	// Check for non-nil to distinguish between unset (nil) and explicitly empty ([])
-	if spec.SignatureKeys != nil {
-		ps.SignatureKeys = make([]types.String, len(spec.SignatureKeys))
-		for i, key := range spec.SignatureKeys {
+	signatureKeys := spec.SignatureKeys //nolint:staticcheck // SignatureKeys is deprecated in Argo CD 3.5 in favour of SourceIntegrity but still honoured through EffectiveSourceIntegrity, the signature_keys attribute keeps mapping to it until the provider adds source_integrity
+	if signatureKeys != nil {
+		ps.SignatureKeys = make([]types.String, len(signatureKeys))
+		for i, key := range signatureKeys {
 			ps.SignatureKeys[i] = types.StringValue(key.KeyID)
 		}
 	}
